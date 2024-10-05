@@ -2,16 +2,52 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Link } from 'react-router-dom';
 import Globe from "../components/ui/globe";
+import { useState } from "react";
+import Web3 from "web3"; // Ensure Web3 is imported
+
+
+declare global {
+  interface Window {
+    ethereum: any; // or you can specify the correct type if you want
+  }
+}
 
 export default function BetPage() {
+      
+  const [walletAddress, setWalletAddress] = useState<string | null>(null); // State to store the wallet address
+
+  const connectMetamask = async () => {
+    try {
+      const web3 = new Web3(window.ethereum);
+      await window.ethereum.enable();
+      const accounts = await web3.eth.getAccounts();
+      const account = accounts[0];
+      setWalletAddress(account); // Set the wallet address in state
+      console.log(account);
+    } catch (error: any) {
+      console.error('Error connecting to MetaMask', error.message);
+    }
+  };
+
+
 
   return (
     <div className="flex flex-col min-h-screen  bg-[#121212] text-gray-100">
       <main className="flex-1 py-12">
         <div className="px-10">
+          <div className="flex justify-between px-10 items-stretch">
+
           <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none mb-8 text-center">
             Choose Your Bet
           </h1>
+            <Button 
+              className="bg-black h-[60px] text-white text-xl" 
+              size="lg"
+              onClick={connectMetamask} // Attach the event to the button
+            >
+              {walletAddress ? `Wallet address : ${walletAddress.slice(0, 4)}...${walletAddress.slice(38,42)}` : "Connect Wallet"} {/* Display wallet address if connected */}
+            </Button>
+          </div>
           <div className="grid md:grid-cols-3 lg:gap-12 items-start">
             {[100, 500, 1000].map((amount) => (
               <Card key={amount} className="w-full bg-[#121212] text-gray-100 pt-5">
