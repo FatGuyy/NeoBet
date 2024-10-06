@@ -14,6 +14,7 @@ const AdminPage = () => {
 //   const [players, setPlayers] = useState<any[]>([]);
 //   const [ownerAddress, setOwnerAddress] = useState<string>("");
 
+    const [betTickets, setBetTickets] = useState('');
 
     const [walletAddress, setWalletAddress] = useState<string | null>(null); // State to store the wallet address
     const addr = "0x3E2410Ccea96a78202df38Bc04e92297135079f2"
@@ -60,8 +61,9 @@ const AdminPage = () => {
 
     const placeBet = () => {
         console.log("Place bet function");
-        
+        console.log("Bet amount:", betTickets); // Log the input value
     }
+
 
   // Close bet function
   return (
@@ -86,6 +88,8 @@ const AdminPage = () => {
             <button onClick={getOwner} className="btn bg-slate-500 hover:bg-slate-700 text-white font-bold py-2 px-4 rounded">
                 Get Owner
             </button>
+
+            <input type="number" className="border border-[#121212] bg-slate-400 text-black" value={betTickets}  onChange={(e) => setBetTickets(e.target.value)} />
             <button onClick={placeBet} className="btn bg-green-500 hover:bg-slate-700 text-white font-bold py-2 px-4 rounded">
                 Place Bet
             </button>
