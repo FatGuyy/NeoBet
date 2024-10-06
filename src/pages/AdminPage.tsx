@@ -17,7 +17,7 @@ const AdminPage = () => {
     const [betTickets, setBetTickets] = useState('');
 
     const [walletAddress, setWalletAddress] = useState<string | null>(null); // State to store the wallet address
-    const addr = "0x3E2410Ccea96a78202df38Bc04e92297135079f2"
+    const addr ="0x6e30A9601D66f6ae8828253a3014190cF53e1e0F"
 
   const connectMetamask = async () => {
     try {
@@ -58,17 +58,14 @@ const AdminPage = () => {
         const web3 = new Web3(window.ethereum);
         await window.ethereum.enable();
         const contract = new web3.eth.Contract(abi, addr); // Initialize the contract
-        const players = await contract.methods.getPlayers(); // Fetch the owner address
+        const players = await contract.methods.getPlayers().call(); // Fetch the owner address
         console.log(players);
         
         console.log(`players are ${players}`);    
     
     } catch (error:any) {
         console.error('Error depositing tokenst', error.message);
-    
-    }
-        
-    }
+    }};
 
     const closeBet = () => {
         console.log("Close bet function");
@@ -76,15 +73,40 @@ const AdminPage = () => {
     }
 
     const placeBet = async () => {
-        try{
+        try {
+            if (!walletAddress) {
+                console.error('No wallet address connected');
+                return;
+            }
+    
             console.log("Place bet function");
-            console.log("Bet amount:", betTickets); 
-        }catch{
-            console.log("errorrrrrrr");
+            const web3 = new Web3(window.ethereum);
+            await window.ethereum.enable();
             
+            // Initialize the contract with ABI and address
+            const contract = new web3.eth.Contract(abi, addr);
+    
+            // Convert tickets from input to integer
+            const ticketCount = parseInt(betTickets);
+            if (isNaN(ticketCount) || ticketCount <= 0) {
+                console.error("Invalid ticket count");
+                return;
+            }
+
+            // Get the current gas price
+            const gasPrice = await web3.eth.getGasPrice();
+            // Call the buyTickets method on the contract
+            const transaction = await contract.methods.buyTickets(ticketCount).send({
+                 from: walletAddress, 
+                gasPrice: gasPrice.toString(), 
+            });
+    
+            console.log(`Bet placed with ${ticketCount} tickets`, transaction);
+        } catch (error: any) {
+            console.error('Error placing bet', error.message);
         }
-        
-    }
+    };
+    
 
 
   // Close bet function
@@ -111,10 +133,12 @@ const AdminPage = () => {
                 Get Owner
             </button>
 
-            <input type="number" className="border border-[#121212] bg-slate-400 text-black" value={betTickets}  onChange={(e) => setBetTickets(e.target.value)} />
-            <button onClick={placeBet} className="btn bg-green-500 hover:bg-slate-700 text-white font-bold py-2 px-4 rounded">
-                Place Bet
-            </button>
+            <div className="admin-actions space-y-4 mb-6">
+                <input type="number" className="border border-[#121212] bg-slate-400 text-black" value={betTickets} onChange={(e) => setBetTickets(e.target.value)} />
+                <button onClick={placeBet} className="btn bg-green-500 hover:bg-slate-700 text-white font-bold py-2 px-4 rounded">
+                    Place Bet
+                </button>
+            </div>
             </div>
 
             {/* Display players */}
