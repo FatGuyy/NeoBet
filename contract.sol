@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract TicketLottery is Ownable {
-    IERC20 public tCoreToken; // Change to tCore token
+    IERC20 public tCoreToken; // tCore token reference
 
     // Struct to store player information
     struct Player {
@@ -21,20 +21,21 @@ contract TicketLottery is Ownable {
     event TicketsPurchased(address indexed buyer, uint256 ticketCount);
     event BetClosed(uint256 winnerTicketId, address winner);
 
-    // Updated constructor
-    constructor(address _tCoreToken) Ownable(msg.sender) {  // Pass the owner address
-        tCoreToken = IERC20(_tCoreToken); // Change the token reference
+    // Constructor to initialize tCore token address and set betting to open
+    constructor(address _tCoreToken) Ownable(msg.sender) {  
+        tCoreToken = IERC20(_tCoreToken); 
         isBetOpen = true; // Betting is open by default
     }
 
-    // Function to buy tickets
-    function buyTickets(uint256 _ticketCount) external {
+    // Payable function to buy tickets with Ether
+    function buyTickets(uint256 _ticketCount) external payable {
         require(isBetOpen, "Betting is closed");
         require(_ticketCount > 0, "Must buy at least one ticket");
-        require(tCoreToken.balanceOf(msg.sender) >= 100 * (10 ** 18), "Insufficient tCore tokens"); // Assuming tCore has 18 decimals
+        require(tCoreToken.balanceOf(msg.sender) >= 100 * (10 ** 18), "Insufficient tCore tokens");
+        require(msg.value >= 0.01 ether * _ticketCount, "Insufficient Ether sent for tickets");
 
         // Transfer tCore tokens from the buyer to the contract
-        tCoreToken.transferFrom(msg.sender, address(this), 100 * (10 ** 18)); // Transfer 100 tokens
+        tCoreToken.transferFrom(msg.sender, address(this), 100 * (10 ** 18)); // Transfer 100 tCore tokens per transaction
 
         // Update player information
         uint256 startTicketId = totalTickets + 1;
@@ -58,6 +59,7 @@ contract TicketLottery is Ownable {
         address winner;
         uint256 ticketCount = 0;
         for (uint256 i = 0; i < players.length; i++) {
+            ticketCount += players[i].tickets;
             if (winningTicketId <= ticketCount) {
                 winner = players[i].playerAddress;
                 break;
