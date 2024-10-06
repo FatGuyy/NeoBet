@@ -2,42 +2,94 @@ import { useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
-import { User, Wallet, Plus, Minus } from "lucide-react"
+import { User, Wallet } from "lucide-react"
 import { Link } from 'react-router-dom';
+import abi from '../TicketLotteryAbi.json'; // Importing the contract JSON file
+import Web3 from "web3"; 
 
+declare global {
+  interface Window {
+    ethereum: any; // or you can specify the correct type if you want
+  }
+}
 type Player = {
   name: string;
   tickets: number;
 }
 
-export default function MainBettingPage() {
-  const [tickets, setTickets] = useState<number>(0)
-  const [players, setPlayers] = useState<Player[]>([
-    { name: "Alice", tickets: 3 },
-    { name: "Bob", tickets: 5 },
-    { name: "Charlie", tickets: 2 },
-  ])
+  export default function MainBettingPage() {
+    const [players, setPlayers] = useState<Player[]>([
+      { name: "Alice", tickets: 3 },
+      { name: "Bob", tickets: 5 },
+      { name: "Charlie", tickets: 2 },
+    ])
 
-  const totalTickets = players.reduce((sum, player) => sum + player.tickets, 0)
+    const totalTickets = players.reduce((sum, player) => sum + player.tickets, 0)
 
-  const handleAddTicket = () => {
-    if (tickets < 10) {
-      setTickets(tickets + 1)
+    const [betTickets, setBetTickets] = useState('');
+
+    const [walletAddress, setWalletAddress] = useState<string | null>(null); // State to store the wallet address
+    const addr ="0x6e30A9601D66f6ae8828253a3014190cF53e1e0F"
+
+  const connectMetamask = async () => {
+    try {
+      const web3 = new Web3(window.ethereum);
+      await window.ethereum.enable();
+      const accounts = await web3.eth.getAccounts();
+      const account = accounts[0];
+      setWalletAddress(account); // Set the wallet address in state
+      console.log(account);
+    } catch (error: any) {
+      console.error('Error connecting to MetaMask', error.message);
     }
-  }
+  };
+  const placeBet = async () => {
+    try {
+        if (!walletAddress) {
+            console.error('No wallet address connected');
+            return;
+        }
 
-  const handleRemoveTicket = () => {
-    if (tickets > 0) {
-      setTickets(tickets - 1)
-    }
-  }
+        console.log("Place bet function");
+        const web3 = new Web3(window.ethereum);
+        await window.ethereum.enable();
+        
+        // Initialize the contract with ABI and address
+        const contract = new web3.eth.Contract(abi, addr);
 
-  const handleGetTickets = () => {
-    if (tickets > 0) {
-      setPlayers([...players, { name: "You", tickets: tickets }])
-      setTickets(0)
+        // Convert tickets from input to integer
+        const ticketCount = parseInt(betTickets);
+        if (isNaN(ticketCount) || ticketCount < 1 || ticketCount > 10) { // Ensure it's within min and max
+            console.error("Invalid ticket count");
+            return;
+        }
+
+        // Get the current gas price
+        const gasPrice = await web3.eth.getGasPrice();
+        
+        // Call the buyTickets method on the contract
+        const transaction = await contract.methods.buyTickets(ticketCount).send({
+            from: walletAddress, 
+            gasPrice: gasPrice.toString(), 
+        });
+
+        console.log(`Bet placed with ${ticketCount} tickets`, transaction);
+
+        // Add the user to the players list
+        setPlayers((prevPlayers) => [
+            ...prevPlayers,
+            { name: "You", tickets: ticketCount } // Add the current user
+        ]);
+
+        // Reset betTickets to empty string after placing the bet
+        setBetTickets('');
+        
+    } catch (error: any) {
+        console.error('Error placing bet', error.message);
     }
-  }
+};
+
+
 
   return (
     <div className="flex flex-col min-h-screen bg-[#121212] text-gray-100">
@@ -79,6 +131,13 @@ export default function MainBettingPage() {
                   </div>
                 </CardContent>
               </Card>
+              <Button 
+              className="bg-black h-[60px] text-white text-xl" 
+              size="lg"
+              onClick={connectMetamask} // Attach the event to the button
+            >
+              {walletAddress ? `Wallet address : ${walletAddress.slice(0, 4)}...${walletAddress.slice(38,42)}` : "Connect Wallet"} {/* Display wallet address if connected */}
+        </Button>
             </div>
             <div className="space-y-6">
               <Card className="bg-[#121212] text-gray-100">
@@ -101,35 +160,16 @@ export default function MainBettingPage() {
                       </div>
                     </div>
                   </div>
-                  <div className="space-y-2">
+                  <div className="space-y-4">
                     <Label htmlFor="tickets">Your Tickets</Label>
-                    <div className="flex items-center space-x-4">
-                      <Button 
-                        variant="outline" 
-                        size="icon" 
-                        onClick={handleRemoveTicket}
-                        disabled={tickets === 0}
-                      >
-                        <Minus className="h-4 w-4 text-[#123412]" />
-                      </Button>
-                      <span className="text-2xl font-bold">{tickets}</span>
-                      <Button 
-                        variant="outline" 
-                        size="icon" 
-                        onClick={handleAddTicket}
-                        disabled={tickets === 10}
-                      >
-                        <Plus className="h-4 w-4 text-[#123412]" />
-                      </Button>
+                    <div className="flex justify-between admin-actions mt-[40px] mb-6 ">
+                        <input type="number" className="border rounded cursor-auto flex items-center justify-center border-white bg-slate-800 text-white text-xl text-center" value={betTickets} onChange={(e) => setBetTickets(e.target.value)} />
+                        <button onClick={placeBet} className="btn bg-green-500 hover:bg-slate-700 text-white font-bold py-2 px-4 rounded">
+                            Place Bet
+                        </button>
                     </div>
-                  </div>
-                  <Button 
-                    className="w-full" 
-                    onClick={handleGetTickets}
-                    disabled={tickets === 0}
-                  >
-                    Get Tickets
-                  </Button>
+                    </div>
+
                 </CardContent>
               </Card>
             </div>
