@@ -40,7 +40,9 @@ const AdminPage = () => {
         const web3 = new Web3(window.ethereum);
         await window.ethereum.enable();
         const contract = new web3.eth.Contract(abi, addr); // Initialize the contract
-        const owner = await contract.methods.owner().call(); // Fetch the owner address
+        const owner = await contract.methods.owner(); // Fetch the owner address
+        console.log(owner);
+        
         console.log(`Owner is ${owner}`);    
     
     } catch (error:any) {
@@ -49,8 +51,22 @@ const AdminPage = () => {
     }};
 
 
-    const getPlayers = () => {
-        console.log("get players function");
+    const getPlayers = async () => {
+    try {
+        console.log("get players Function");
+        
+        const web3 = new Web3(window.ethereum);
+        await window.ethereum.enable();
+        const contract = new web3.eth.Contract(abi, addr); // Initialize the contract
+        const players = await contract.methods.getPlayers(); // Fetch the owner address
+        console.log(players);
+        
+        console.log(`players are ${players}`);    
+    
+    } catch (error:any) {
+        console.error('Error depositing tokenst', error.message);
+    
+    }
         
     }
 
@@ -59,9 +75,15 @@ const AdminPage = () => {
         
     }
 
-    const placeBet = () => {
-        console.log("Place bet function");
-        console.log("Bet amount:", betTickets); // Log the input value
+    const placeBet = async () => {
+        try{
+            console.log("Place bet function");
+            console.log("Bet amount:", betTickets); 
+        }catch{
+            console.log("errorrrrrrr");
+            
+        }
+        
     }
 
 
