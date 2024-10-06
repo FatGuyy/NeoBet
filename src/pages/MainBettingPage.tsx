@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
@@ -6,6 +6,7 @@ import { User, Wallet } from "lucide-react"
 import { Link } from 'react-router-dom';
 import abi from '../TicketLotteryAbi.json'; // Importing the contract JSON file
 import Web3 from "web3"; 
+import toast from 'react-hot-toast';
 
 declare global {
   interface Window {
@@ -88,7 +89,39 @@ type Player = {
         console.error('Error placing bet', error.message);
     }
 };
+// ------------------------
 
+const [currentTime, setCurrentTime] = useState<string>(''); // State to store the current time
+useEffect(() => {
+  const updateTime = () => {
+    const now = new Date();
+    const timeString = now.toLocaleTimeString(); // Format the current time
+    setCurrentTime(timeString);
+  };
+
+  updateTime(); // Initial call to set time immediately
+  const intervalId = setInterval(updateTime, 1000); // Update time every second
+
+  return () => clearInterval(intervalId); // Cleanup interval on component unmount
+}, []);
+
+const chooseRandomPlayer = () => {
+  if (players.length === 0) {
+      console.log("No players to choose from.");
+      return null;
+  }
+
+  const randomIndex = Math.floor(Math.random() * players.length);
+  const chosenPlayer = players[randomIndex];
+  console.log("Chosen player:", chosenPlayer);
+  if (chosenPlayer.name === "You"){
+    toast.success(" Congratulations : You win ")
+  }else{
+    toast.error(" You loose , Better luck next time")
+  }
+};
+
+// ------------------------
 
 
   return (
@@ -137,7 +170,9 @@ type Player = {
               onClick={connectMetamask} // Attach the event to the button
             >
               {walletAddress ? `Wallet address : ${walletAddress.slice(0, 4)}...${walletAddress.slice(38,42)}` : "Connect Wallet"} {/* Display wallet address if connected */}
-        </Button>
+            </Button>
+
+            <span className="ml-4 text-lg">{currentTime}</span>
             </div>
             <div className="space-y-6">
               <Card className="bg-[#121212] text-gray-100">
@@ -172,6 +207,7 @@ type Player = {
 
                 </CardContent>
               </Card>
+
             </div>
           </div>
         </div>
@@ -182,11 +218,15 @@ type Player = {
           <Link className="text-xs hover:text-gray-300" to="/">
             Terms of Service
           </Link>
-          <Link className="text-xs hover:text-gray-300" to="/">
+          <button 
+            className="text-xs hover:text-gray-300"
+            onClick={chooseRandomPlayer}
+        >
             Privacy
-          </Link>
+        </button>
         </nav>
       </footer>
     </div>
+    
   )
 }

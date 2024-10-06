@@ -7,7 +7,7 @@ const navigation = [
   { name: 'Start Betting', href: '/bet-page', current: false },
   { name: 'Main bet', href: '/bet-page/mainBetting', current: false },
   // { name: 'Helpline', href: '/contact', current: false },
-  { name: 'Admin', href: '/admin', current: false },
+  // { name: 'Admin', href: '/admin', current: false },
 ]
 
 function classNames(...classes: string[]) {
@@ -32,7 +32,7 @@ export default function Navbar() {
             <div className="flex flex-shrink-0 items-center">
               <img
                 className="h-8 w-auto"
-                src="src\assets\react.svg"
+                src="src\assets\neo2.png"
                 alt="Your Company"
               />
             </div>

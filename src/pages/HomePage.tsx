@@ -44,7 +44,7 @@ export default function HomePage2() {
             
                 <Boxes />
                 <h1 className={cn("text-6xl font-bold text-white relative z-20")}>
-                Welcome to Crypto Bet
+                Welcome to NeoBet
                 </h1>
                 <p className="text-center mt-2 text-neutral-300 relative z-20">
                 The future of betting is here. Secure, transparent, and decentralized betting powered by blockchain
@@ -57,11 +57,12 @@ export default function HomePage2() {
         
         <section className="w-full pb-[170px] pt-[10px] z-10">
             <Link to='bet-page'>
-                <div className='bg-[#81B562] skew-y-[170deg]  w-full  flex justify-center items-center '>
-                            <h1 className='text-[50px] text-[#147410] '>
-                                    PLAY NOW 
-                            </h1>
-                        </div>
+            <div className='skew-y-[170deg] w-full flex justify-center items-center transition-all ease-in duration-300 bg-gradient-to-r from-[#112233] via-green-500 to-[#112233]'>
+  <h1 className='text-[50px] text-[#121212] hover:text-[60px] transition-all ease-in duration-300'>
+    PLAY NOW
+  </h1>
+</div>
+
             </Link>
         </section>
         

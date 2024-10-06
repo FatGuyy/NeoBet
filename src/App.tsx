@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { Suspense, lazy } from 'react';
 import Navbar from './myComponents/Navbar';
 import { ClipLoader } from 'react-spinners';
-
+import { Toaster } from 'react-hot-toast';
 // Lazy load the pages
 const HomePage = lazy(() => import('./pages/HomePage'));
 const BetPage = lazy(() => import('./pages/BetPage'));
@@ -16,6 +16,8 @@ function App() {
     <>
       <Router>
         <Navbar />
+        <Toaster   position="bottom-center" reverseOrder={true}/>
+
         {/* Suspense component with fallback loader */}
         <Suspense fallback={
           <div className="flex justify-center items-center min-h-screen bg-[#121212]">
