@@ -9,6 +9,7 @@ const BetPage = lazy(() => import('./pages/BetPage'));
 const ContactPage = lazy(() => import('./pages/ContactPage'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const MainBettingPage = lazy(() => import('./pages/MainBettingPage'));
+const AdminPage = lazy(() => import('./pages/AdminPage'));
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/bet-page/mainBetting" element={<MainBettingPage />} />
+            <Route path="/admin" element={<AdminPage />} />
           </Routes>
         </Suspense>
       </Router>

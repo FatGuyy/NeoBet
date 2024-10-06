@@ -7,6 +7,7 @@ const navigation = [
   { name: 'Start Betting', href: '/bet-page', current: false },
   { name: 'Main bet', href: '/bet-page/mainBetting', current: false },
   // { name: 'Helpline', href: '/contact', current: false },
+  { name: 'Admin', href: '/admin', current: false },
 ]
 
 function classNames(...classes: string[]) {

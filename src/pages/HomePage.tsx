@@ -4,8 +4,32 @@ import { Coins, Lock, Wallet } from "lucide-react"
 import { Link } from 'react-router-dom';
 import { Boxes } from "../components/ui/background-boxes";
 import { cn } from "@/lib/utils";
+import { useState } from "react";
+import Web3 from "web3"; // Ensure Web3 is imported
 
+
+declare global {
+  interface Window {
+    ethereum: any; // or you can specify the correct type if you want
+  }
+}
 export default function HomePage2() {
+
+  const [walletAddress, setWalletAddress] = useState<string | null>(null); // State to store the wallet address
+
+  const connectMetamask = async () => {
+    try {
+      const web3 = new Web3(window.ethereum);
+      await window.ethereum.enable();
+      const accounts = await web3.eth.getAccounts();
+      const account = accounts[0];
+      setWalletAddress(account); // Set the wallet address in state
+      console.log(account);
+    } catch (error: any) {
+      console.error('Error connecting to MetaMask', error.message);
+    }
+  };
+
   return (
     <div className="flex flex-col z-0 min-h-screen justify-center items-center bg-[#121212] text-gray-100 overflow-visible">
       <main className="flex-1 ">
@@ -89,9 +113,13 @@ export default function HomePage2() {
                 </p>
               </div>
               <div className="w-full max-w-sm space-y-2">
-                <Button className="w-full bg-black " size="lg">
-                  Connect Wallet
-                </Button>
+              <Button 
+              className="bg-[#441166] h-[60px] text-white text-xl" 
+              size="lg"
+              onClick={connectMetamask} // Attach the event to the button
+            >
+              {walletAddress ? `Wallet address : ${walletAddress.slice(0, 4)}...${walletAddress.slice(38,42)}` : "Connect Wallet"} {/* Display wallet address if connected */}
+            </Button>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
                   By connecting your wallet, you agree to our Terms of Service and Privacy Policy.
                 </p>
